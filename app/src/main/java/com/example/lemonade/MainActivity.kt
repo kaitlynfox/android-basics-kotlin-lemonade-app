@@ -23,34 +23,25 @@ import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity() {
 
-    /**
-     * DO NOT ALTER ANY VARIABLE OR VALUE NAMES OR THEIR INITIAL VALUES.
-     *
-     * Anything labeled var instead of val is expected to be changed in the functions but DO NOT
-     * alter their initial values declared here, this could cause the app to not function properly.
-     */
     private val LEMONADE_STATE = "LEMONADE_STATE"
     private val LEMON_SIZE = "LEMON_SIZE"
     private val SQUEEZE_COUNT = "SQUEEZE_COUNT"
 
 
 
-
-
-
-    // SELECT represents the "pick lemon" state
+    // SELECT - "pick lemon" state
     private val SELECT = "select"
 
-    // SQUEEZE represents the "squeeze lemon" state
+    // SQUEEZE - "squeeze lemon" state
     private val SQUEEZE = "squeeze"
 
-    // DRINK represents the "drink lemonade" state
+    // DRINK - "drink lemonade" state
     private val DRINK = "drink"
 
-    // RESTART represents the state where the lemonade has be drunk and the glass is empty
+    // RESTART - lemonade has be drunk and the glass is empty
     private val RESTART = "restart"
 
-    // Default the state to select
+    // Default state
     private var lemonadeState = "select"
 
     // Filter out logs by using a tag (DM, etc)
@@ -58,10 +49,10 @@ class MainActivity : AppCompatActivity() {
 
 
 
-    // Default lemonSize to -1
+    // Default
     private var lemonSize = -1
 
-    // Default the squeezeCount to -1
+    // Default
     private var squeezeCount = -1
 
     private var lemonTree = LemonTree()
@@ -75,45 +66,33 @@ class MainActivity : AppCompatActivity() {
 
 
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // === DO NOT ALTER THE CODE IN THE FOLLOWING IF STATEMENT ===
         if (savedInstanceState != null) {
             lemonadeState = savedInstanceState.getString(LEMONADE_STATE, "select")
             lemonSize = savedInstanceState.getInt(LEMON_SIZE, -1)
             squeezeCount = savedInstanceState.getInt(SQUEEZE_COUNT, -1)
         }
 
-
         // The layout has been set with a blank view; Find the views by their id
         lemonImage = findViewById(R.id.image_lemon_state)
         lemonText = findViewById(R.id.text_action)
 
-
         setViewElements()
-
 
         // !! says it promises that it's not null - forces it to run; !! will crash if the view is null
         // If not sure it's null, use ?; ? will prevent crashing if null but will run/not allow you to do anything
         lemonImage!!.setOnClickListener {
-            // TODO: call the method that handles the state when the image is clicked
             clickLemonImage()
         }
+
         lemonImage!!.setOnLongClickListener {
-            // TODO: replace 'false' with a call to the function that shows the squeeze count
-            false
+            showSnackbar()
         }
     }
 
-    /**
-     * === DO NOT ALTER THIS METHOD ===
-     *
-     * This method saves the state of the app if it is put in the background.
-     */
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString(LEMONADE_STATE, lemonadeState)
         outState.putInt(LEMON_SIZE, lemonSize)
@@ -121,16 +100,7 @@ class MainActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
     }
 
-    /**
-     * Clicking will elicit a different response depending on the state.
-     * This method determines the state and proceeds with the correct action.
-     */
     private fun clickLemonImage() {
-        // TODO: use a conditional statement like 'if' or 'when' to track the lemonadeState
-        //  when the the image is clicked we may need to change state to the next step in the
-        //  lemonade making progression (or at least make some changes to the current state in the
-        //  case of squeezing the lemon). That should be done in this conditional statement
-
         // update the state to the next stage of 'squeeze'
         when (lemonadeState) {
             "squeeze" -> {
@@ -160,9 +130,6 @@ class MainActivity : AppCompatActivity() {
         setViewElements()
     }
 
-    /**
-     * Set up the view elements according to the state.
-     */
     private fun setViewElements() {
         when (lemonadeState) {
             "squeeze" -> {
@@ -170,10 +137,12 @@ class MainActivity : AppCompatActivity() {
                 lemonText!!.text = resources.getString(R.string.lemon_squeeze)
             }
             "drink" -> {
-
+                lemonImage!!.setImageResource(R.drawable.lemon_drink)
+                lemonText!!.text = resources.getString(R.string.lemon_drink)
             }
             "restart" -> {
-
+                lemonImage!!.setImageResource(R.drawable.lemon_restart)
+                lemonText!!.text = resources.getString(R.string.lemon_empty_glass)
             }
             else -> {
                 lemonImage!!.setImageResource(R.drawable.lemon_tree)
@@ -182,11 +151,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * === DO NOT ALTER THIS METHOD ===
-     *
-     * Long clicking the lemon image will show how many times the lemon has been squeezed.
-     */
     private fun showSnackbar(): Boolean {
         if (lemonadeState != SQUEEZE) {
             return false
@@ -198,18 +162,5 @@ class MainActivity : AppCompatActivity() {
             Snackbar.LENGTH_SHORT
         ).show()
         return true
-    }
-}
-
-
-
-
-/**
- * A Lemon tree class with a method to "pick" a lemon. The "size" of the lemon is randomized
- * and determines how many times a lemon needs to be squeezed before you get lemonade.
- */
-class LemonTree {
-    fun pick(): Int {
-        return (2..4).random()
     }
 }
