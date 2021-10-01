@@ -33,6 +33,11 @@ class MainActivity : AppCompatActivity() {
     private val LEMON_SIZE = "LEMON_SIZE"
     private val SQUEEZE_COUNT = "SQUEEZE_COUNT"
 
+
+
+
+
+
     // SELECT represents the "pick lemon" state
     private val SELECT = "select"
 
@@ -48,6 +53,11 @@ class MainActivity : AppCompatActivity() {
     // Default the state to select
     private var lemonadeState = "select"
 
+    // Filter out logs by using a tag (DM, etc)
+    // println("DM: lemonadeState is: ${lemonadeState}")
+
+
+
     // Default lemonSize to -1
     private var lemonSize = -1
 
@@ -55,7 +65,16 @@ class MainActivity : AppCompatActivity() {
     private var squeezeCount = -1
 
     private var lemonTree = LemonTree()
+
+    // ? allows for the view to be null/not null
+    // No ? means it would need to be defined during its declaration
+    // All views will start as null as MainActivity is automatically created
+    // setContentView in onCreate actually sets the view (which has nothing)
     private var lemonImage: ImageView? = null
+    private var lemonText: TextView? = null
+
+
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,12 +87,21 @@ class MainActivity : AppCompatActivity() {
             lemonSize = savedInstanceState.getInt(LEMON_SIZE, -1)
             squeezeCount = savedInstanceState.getInt(SQUEEZE_COUNT, -1)
         }
-        // === END IF STATEMENT ===
 
+
+        // The layout has been set with a blank view; Find the views by their id
         lemonImage = findViewById(R.id.image_lemon_state)
+        lemonText = findViewById(R.id.text_action)
+
+
         setViewElements()
+
+
+        // !! says it promises that it's not null - forces it to run; !! will crash if the view is null
+        // If not sure it's null, use ?; ? will prevent crashing if null but will run/not allow you to do anything
         lemonImage!!.setOnClickListener {
             // TODO: call the method that handles the state when the image is clicked
+            clickLemonImage()
         }
         lemonImage!!.setOnLongClickListener {
             // TODO: replace 'false' with a call to the function that shows the squeeze count
@@ -103,36 +131,55 @@ class MainActivity : AppCompatActivity() {
         //  lemonade making progression (or at least make some changes to the current state in the
         //  case of squeezing the lemon). That should be done in this conditional statement
 
-        // TODO: When the image is clicked in the SELECT state, the state should become SQUEEZE
-        //  - The lemonSize variable needs to be set using the 'pick()' method in the LemonTree class
-        //  - The squeezeCount should be 0 since we haven't squeezed any lemons just yet.
+        // update the state to the next stage of 'squeeze'
+        when (lemonadeState) {
+            "squeeze" -> {
 
-        // TODO: When the image is clicked in the SQUEEZE state the squeezeCount needs to be
-        //  INCREASED by 1 and lemonSize needs to be DECREASED by 1.
-        //  - If the lemonSize has reached 0, it has been juiced and the state should become DRINK
-        //  - Additionally, lemonSize is no longer relevant and should be set to -1
+                if (lemonSize > 0) {
+                    lemonSize -= 1
+                } else {
+                    lemonadeState = "drink"
+                    lemonSize = -1
+                }
 
-        // TODO: When the image is clicked in the DRINK state the state should become RESTART
+                squeezeCount += 1
+            }
+            "drink" -> {
+                lemonadeState = "restart"
+            }
+            "restart" -> {
+                lemonadeState = "select"
+            }
+            else -> {
+                lemonadeState = "squeeze"
+                lemonSize = lemonTree.pick()
+                squeezeCount = 0
+            }
+        }
 
-        // TODO: When the image is clicked in the RESTART state the state should become SELECT
-
-        // TODO: lastly, before the function terminates we need to set the view elements so that the
-        //  UI can reflect the correct state
+        setViewElements()
     }
 
     /**
      * Set up the view elements according to the state.
      */
     private fun setViewElements() {
-        val textAction: TextView = findViewById(R.id.text_action)
-        // TODO: set up a conditional that tracks the lemonadeState
+        when (lemonadeState) {
+            "squeeze" -> {
+                lemonImage!!.setImageResource(R.drawable.lemon_squeeze)
+                lemonText!!.text = resources.getString(R.string.lemon_squeeze)
+            }
+            "drink" -> {
 
-        // TODO: for each state, the textAction TextView should be set to the corresponding string from
-        //  the string resources file. The strings are named to match the state
+            }
+            "restart" -> {
 
-        // TODO: Additionally, for each state, the lemonImage should be set to the corresponding
-        //  drawable from the drawable resources. The drawables have the same names as the strings
-        //  but remember that they are drawables, not strings.
+            }
+            else -> {
+                lemonImage!!.setImageResource(R.drawable.lemon_tree)
+                lemonText!!.text = resources.getString(R.string.lemon_select)
+            }
+        }
     }
 
     /**
@@ -153,6 +200,9 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 }
+
+
+
 
 /**
  * A Lemon tree class with a method to "pick" a lemon. The "size" of the lemon is randomized
